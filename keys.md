@@ -79,15 +79,15 @@ openssl x509 -req -in client.csr.pem -CA ca.cert.pem -CAkey ca.key.pem -CAcreate
 
 ```
 rm *.pem *.srl
-winpty openssl genrsa -out ca.key.pem 2048
-MSYS_NO_PATHCONV=true openssl req -x509 -new -nodes -key ca.key.pem -subj '/CN=CARoot' -days 365 -out ca.cert.pem
-winpty openssl genrsa -out broker.key.pem 2048
+openssl genrsa -out ca.key.pem 2048
+openssl req -x509 -new -nodes -key ca.key.pem -subj '/CN=CARoot' -days 365 -out ca.cert.pem
+openssl genrsa -out broker.key.pem 2048
 openssl pkcs8 -topk8 -inform PEM -outform PEM -in broker.key.pem -out broker.key-pk8.pem -nocrypt
 openssl req -new -config broker.conf -key broker.key.pem -out broker.csr.pem -sha256
 openssl x509 -req -in broker.csr.pem -CA ca.cert.pem -CAkey ca.key.pem -CAcreateserial -out broker.cert.pem -days 365 -extensions v3_ext -extfile broker.conf -sha256
-winpty openssl genrsa -out client.key.pem 2048
+openssl genrsa -out client.key.pem 2048
 openssl pkcs8 -topk8 -inform PEM -outform PEM -in client.key.pem -out client.key-pk8.pem -nocrypt
-MSYS_NO_PATHCONV=true openssl req -new -subj "/CN=client" -key client.key.pem -out client.csr.pem -sha256
+openssl req -new -subj "/CN=client" -key client.key.pem -out client.csr.pem -sha256
 openssl x509 -req -in client.csr.pem -CA ca.cert.pem -CAkey ca.key.pem -CAcreateserial -out client.cert.pem -days 365 -sha256
 ```
 
