@@ -1,0 +1,162 @@
+nodeSelector:
+  node_pool: pulsar-node-pool
+
+imageName: europe-west2-docker.pkg.dev/diversification-mgmt-shrd-108d/docker-repository/tibco/pulsar-server:3.0.4
+cluster_name: testcluster
+broker_replicas: 3
+proxy_install: false
+lbsourcerange: 24.245.218.8/32
+
+broker_certs_name: pulsar-broker-certs
+client_certs_name: pulsar-client-certs
+
+secretStore:
+  name: clustersecretstore
+  kind: ClusterSecretStore
+
+  refreshInterval: 1h
+
+  creationPolicy: Owner
+  deletionPolicy: Delete
+
+
+# securityContext:
+#   runAsUser: 10001
+#   runAsGroup: 10001
+#   allowPrivilegeEscalation: false
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   capabilities:
+#     drop:
+#       - ALL
+#     add:
+#       - CAP_FOWNER
+#   seccompProfile:
+#     type: RuntimeDefault
+
+bookie:
+  annotations:
+    sidecar.istio.io/inject: "false"
+
+    # resources:
+    #   requests:
+    #     cpu: 1.5
+    #     memory: 2Gi
+    #   limits:
+    #     cpu: 2.0
+    #     memory: 4Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2.2Gi
+    limits:
+      cpu: 500m
+      memory: 2.2Gi
+
+  env:
+    # PULSAR_MEM: '-Xms2g -Xmx4g -XX:MaxDirectMemorySize=4g'
+    PULSAR_MEM: '-Xms2g -Xmx2g -XX:MaxDirectMemorySize=2g'
+
+  # topologySpreadConstraints:
+  #   - labelSelector:
+  #       matchLabelKeys:
+  #         - pod-template-hash
+  #       matchLabels:
+  #         com.tibco.pulsar.service: bookies
+  #         app: bookie
+
+  #     maxSkew: 1
+  #     topologyKey: topology.kubernetes.io/zone
+  #     whenUnsatisfiable: ScheduleAnyway
+
+
+
+zookeeper:
+  annotations:
+    sidecar.istio.io/inject: "false"
+
+  # resources:
+  #   requests:
+  #     cpu: 1.5
+  #     memory: 3328Mi
+  #   limits:
+  #     cpu: 1.5
+  #     memory: 3328Mi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 3328Mi
+    limits:
+      cpu: 500m
+      memory: 3328Mi
+
+  env:
+    # _ZOOKEEPER_HEAP_OPTS: '-Xmx3072M'
+    _ZOOKEEPER_HEAP_OPTS: '-Xmx3072M'
+
+  # topologySpreadConstraints:
+  #   - labelSelector:
+  #       matchLabelKeys:
+  #         - pod-template-hash
+  #       matchLabels:
+  #         com.tibco.pulsar.service: bookies
+  #         app: bookie
+
+  #     maxSkew: 1
+  #     topologyKey: topology.kubernetes.io/zone
+  #     whenUnsatisfiable: ScheduleAnyway
+
+
+
+broker:
+  annotations:
+    sidecar.istio.io/inject: "false"
+
+  # resources:
+  #   requests:
+  #     cpu: 1.5
+  #     memory: 2Gi
+  #   limits:
+  #     cpu: 2.0
+  #     memory: 4Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2.5Gi
+    limits:
+      cpu: 500m
+      memory: 2.5Gi
+
+  volumeMounts:
+    - name: broker-certs
+      mountPath: "/var/run/secrets/broker-certs"
+      readOnly: true
+    - name: client-certs
+      mountPath: "/var/run/secrets/client-certs"
+      readOnly: true
+
+  volumes:
+    - name: broker-certs
+      secret:
+        secretName: pulsar-broker-certs
+        defaultMode: 420
+    - name: client-certs
+      secret:
+        secretName: pulsar-client-certs
+        defaultMode: 420
+
+  env:
+    # PULSAR_MEM: '-Xms2g -Xmx4g -XX:MaxDirectMemorySize=4g'
+    PULSAR_MEM: '-Xms2g -Xmx2g -XX:MaxDirectMemorySize=2g'
+
+  # topologySpreadConstraints:
+  #   - labelSelector:
+  #       matchLabelKeys:
+  #         - pod-template-hash
+  #       matchLabels:
+  #         com.tibco.pulsar.service: bookies
+  #         app: bookie
+
+  #     maxSkew: 1
+  #     topologyKey: topology.kubernetes.io/zone
+  #     whenUnsatisfiable: ScheduleAnyway
